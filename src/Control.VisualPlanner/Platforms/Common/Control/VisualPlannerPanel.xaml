@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Grid xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:forms="clr-namespace:SkiaSharp.Views.Forms;assembly=SkiaSharp.Views.Forms"
+             xmlns:common="clr-namespace:Control.VisualPlanner.Platforms.Common;assembly=Control.VisualPlanner"
+             mc:Ignorable="d"
+             x:Class="Control.VisualPlanner.Platforms.Common.Control.VisualPlannerPanel">
+    <forms:SKCanvasView x:Name="CanvasView"
+                        PaintSurface="CanvasView_OnPaintSurface"/>
+    <Grid.Effects>
+        <common:TouchEffect Capture="True"
+                            TouchAction="TouchEffect_OnTouchAction"/>
+    </Grid.Effects>
+</Grid>

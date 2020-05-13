@@ -1,0 +1,66 @@
+﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;xamarin.ios10;MonoAndroid81;MonoAndroid90</TargetFrameworks>
+    <AssemblyName>Control.VisualPlanner</AssemblyName>
+    <RootNamespace>Control.VisualPlanner</RootNamespace>
+    <PackageId>Xamarin.Forms.VisualPlanner</PackageId>
+
+    <Product>$(AssemblyName) ($(TargetFramework))</Product>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
+    <Version>1.0.0</Version>
+    <PackageVersion>1.0.0</PackageVersion>
+    <PackOnBuild>true</PackOnBuild>
+    <NeutralLanguage>en</NeutralLanguage>
+    <LangVersion>8.0</LangVersion>
+
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/soerenchrist/Control.VisualPlanner</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/soerenchrist/Control.VisualPlanner</RepositoryUrl>
+    <PackageReleaseNotes>First version</PackageReleaseNotes>
+    <PackageTags>xamarin, ios, android, xamarin.forms, planner, skia</PackageTags>
+
+    <Title>Control for visually planning stuff</Title>
+    <Summary>Add items to views, move them around, resize, rotate etc.</Summary>
+    <Description>First version</Description>
+
+    <Owners>Sören Christ</Owners>
+    <Authors>Sören Christ</Authors>
+    <Copyright>Copyright 2020</Copyright>
+    <PackageRequireLicenseAcceptance>MIT</PackageRequireLicenseAcceptance>
+    <SignAssembly>false</SignAssembly>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)'=='Release' ">
+    <DebugType>pdbonly</DebugType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Platforms\Common\**\*.cs"/>
+    <PackageReference Include="SkiaSharp.Svg" Version="1.60.0" />
+    <PackageReference Include="SkiaSharp.Views.Forms" Version="1.68.2.1" />
+    <PackageReference Include="Xamarin.Forms" Version="4.4.0.991757" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard')) ">
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.iOS')) ">
+    <Compile Include="Platforms\IOS\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+    <Compile Include="Platforms\Android\**\*.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
+</Project>

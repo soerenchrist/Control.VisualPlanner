@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:control="clr-namespace:Control.VisualPlanner.Platforms.Common.Control;assembly=Control.VisualPlanner"
+             xmlns:viewModels="clr-namespace:VisualPlanner.Sample.ViewModels;assembly=VisualPlanner.Sample"
+             mc:Ignorable="d"
+             x:Class="VisualPlanner.Sample.Views.ItemsPage"
+             Title="{Binding Title}"
+             x:Name="BrowseItemsPage">
+    <ContentPage.BindingContext>
+        <viewModels:ItemsViewModel />
+    </ContentPage.BindingContext>
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Order="Primary"
+                     Text="Draw"
+                     Clicked="DrawOnTapped"/>
+        <ToolbarItem Order="Primary"
+                     Text="Add"
+                     Command="{Binding AddCommand}"/>
+    </ContentPage.ToolbarItems>
+    <ContentPage.Content>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <control:VisualPlannerPanel x:Name="Panel"
+                            Grid.Column="0"
+                            Grid.RowSpan="3"
+                            Grid.Row="0"
+                            SelectedItem="{Binding SelectedElement}"
+                            Items="{Binding PlannerElements}"
+                            BackgroundSvg="{Binding BackgroundSvg}"
+                            Grid.ColumnSpan="2"/>
+            <Button Text="Links"
+                    Grid.Column="0"
+                    Grid.Row="0"
+                    Command="{Binding LeftCommand}"></Button>
+            <Button Text="Rechts"
+                    Grid.Column="1"
+                    Grid.Row="0"
+                    Command="{Binding RightCommand}"/>
+
+            <Button Text="-"
+                    Grid.Column="0"
+                    Grid.Row="1"
+                    Command="{Binding ScaleDownCommand}"></Button>
+            <Button Text="+"
+                    Grid.Column="1"
+                    Grid.Row="1"
+                    Command="{Binding ScaleUpCommand}"></Button>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

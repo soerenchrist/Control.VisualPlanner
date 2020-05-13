@@ -1,10 +1,11 @@
-﻿using System.Linq;
+﻿
+using System.Linq;
 using UIKit;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.iOS;
 
 [assembly: ResolutionGroupName("PluginVisualPlanner")]
-[assembly: ExportEffect(typeof(Control.VisualPlanner.Platforms.Droid.TouchEffect), "TouchEffect")]
+[assembly: ExportEffect(typeof(Control.VisualPlanner.Platforms.IOS.TouchEffect), "TouchEffect")]
 namespace Control.VisualPlanner.Platforms.IOS
 {
     public class TouchEffect : PlatformEffect
@@ -18,7 +19,7 @@ namespace Control.VisualPlanner.Platforms.IOS
             _view = Control == null ? Container : Control;
 
             // Get access to the TouchEffect class in the .NET Standard library
-            var effect = (VisualPlanner.Util.TouchEffect)Element.Effects.FirstOrDefault(e => e is Util.TouchEffect);
+            var effect = (Common.TouchEffect)Element.Effects.FirstOrDefault(e => e is Common.TouchEffect);
 
             if (effect != null && _view != null)
             {

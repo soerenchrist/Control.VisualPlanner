@@ -1,6 +1,6 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;xamarin.ios10;MonoAndroid81;MonoAndroid90</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;Xamarin.iOS10;MonoAndroid81;MonoAndroid90;MonoAndroid10.0</TargetFrameworks>
     <AssemblyName>Control.VisualPlanner</AssemblyName>
     <RootNamespace>Control.VisualPlanner</RootNamespace>
     <PackageId>Xamarin.Forms.VisualPlanner</PackageId>
@@ -17,13 +17,13 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageLicenseUrl>https://github.com/soerenchrist/Control.VisualPlanner/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/soerenchrist/Control.VisualPlanner</PackageProjectUrl>
     <RepositoryUrl>https://github.com/soerenchrist/Control.VisualPlanner</RepositoryUrl>
     <PackageReleaseNotes>First version</PackageReleaseNotes>
     <PackageTags>xamarin, ios, android, xamarin.forms, planner, skia</PackageTags>
 
-    <Title>Control for visually planning stuff</Title>
+    <Title>Control for visually planning stuff using SVGs</Title>
     <Summary>Add items to views, move them around, resize, rotate etc.</Summary>
     <Description>First version</Description>
 
@@ -44,8 +44,8 @@
     <DebugType>pdbonly</DebugType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
-
   <ItemGroup>
+
     <Compile Include="Platforms\Common\**\*.cs" />
     <PackageReference Include="SkiaSharp.Svg" Version="1.60.0" />
     <PackageReference Include="SkiaSharp.Views.Forms" Version="1.68.2.1" />
@@ -58,15 +58,10 @@
   <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.iOS')) ">
     <Compile Include="Platforms\IOS\**\*.cs" />
   </ItemGroup>
-
+  
   <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
     <Compile Include="Platforms\Android\**\*.cs" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Xamarin.iOS">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\ReferenceAssemblies\Microsoft\Framework\Xamarin.iOS\v1.0\Xamarin.iOS.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+  
   <Import Project="$(MSBuildSDKExtrasTargets)" Condition="Exists('$(MSBuildSDKExtrasTargets)')" />
 </Project>

@@ -13,7 +13,7 @@ namespace Control.VisualPlanner.Platforms.IOS
     {
         private readonly Element _element;        // Forms element for firing events
         private readonly UIView _view;            // iOS UIView 
-        private readonly VisualPlanner.Util.TouchEffect _touchEffect;
+        private readonly Common.TouchEffect _touchEffect;
         private bool _capture;
 
         private static readonly Dictionary<UIView, TouchRecognizer> ViewDictionary =
@@ -22,7 +22,7 @@ namespace Control.VisualPlanner.Platforms.IOS
         private static readonly Dictionary<long, TouchRecognizer> IdToTouchDictionary =
             new Dictionary<long, TouchRecognizer>();
 
-        public TouchRecognizer(Element element, UIView view, Util.TouchEffect touchEffect)
+        public TouchRecognizer(Element element, UIView view, Common.TouchEffect touchEffect)
         {
             _element = element;
             _view = view;

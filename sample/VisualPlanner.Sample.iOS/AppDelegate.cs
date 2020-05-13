@@ -25,7 +25,7 @@ namespace VisualPlanner.Sample.iOS
             global::Xamarin.Forms.Forms.SetFlags("CollectionView_Experimental");
             global::Xamarin.Forms.Forms.Init();
             LoadApplication(new App());
-
+            Control.VisualPlanner.Platforms.IOS.Config.Init();
             return base.FinishedLaunching(app, options);
         }
     }

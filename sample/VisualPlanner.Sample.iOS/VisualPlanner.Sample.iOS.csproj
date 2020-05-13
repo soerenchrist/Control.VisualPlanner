@@ -131,6 +131,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Control.VisualPlanner\Control.VisualPlanner.csproj">
+      <Project>{5c322156-49f2-4b34-a055-7f180da3fd4a}</Project>
+      <Name>Control.VisualPlanner</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VisualPlanner.Sample\VisualPlanner.Sample.csproj">
       <Project>{520DA206-7BB1-41D1-A410-1A406661317B}</Project>
       <Name>VisualPlanner.Sample</Name>

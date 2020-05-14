@@ -37,7 +37,6 @@ namespace Control.VisualPlanner.Platforms.Common.Control
 
         private SKPoint _arrowStartPoint;
         private SKPoint _arrowCurrentPoint;
-        private IList<Arrow> _arrows = new List<Arrow>();
 
         #endregion
 
@@ -91,6 +90,21 @@ namespace Control.VisualPlanner.Platforms.Common.Control
 
         #endregion PlannerMode (Bindable bool)
 
+        #region Arrows (Bindable IEnumerable<Arrow>)
+
+        public static readonly BindableProperty ArrowsProperty =
+            BindableProperty.Create(propertyName: nameof(Arrows),
+                returnType: typeof(IEnumerable<Arrow>),
+                declaringType: typeof(VisualPlannerPanel),
+                defaultValue: new ObservableCollection<Arrow>(),
+                propertyChanged: GenericPropertyChanged);
+        public ObservableCollection<Arrow> Arrows
+        {
+            get => (ObservableCollection<Arrow>) GetValue(ArrowsProperty);
+            set => SetValue(ArrowsProperty, value);
+        }
+        #endregion
+        
         #region Items (Bindable IEnumerable<PlannerElement>)
 
         public static readonly BindableProperty ItemsProperty =
@@ -229,6 +243,7 @@ namespace Control.VisualPlanner.Platforms.Common.Control
         {
             InitializeComponent();
             Items.CollectionChanged += Items_CollectionChanged;
+            Arrows.CollectionChanged += Items_CollectionChanged;
         }
 
         private void CanvasView_OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)
@@ -262,7 +277,7 @@ namespace Control.VisualPlanner.Platforms.Common.Control
                 _canvas.DrawLine(_arrowStartPoint, _arrowCurrentPoint, DrawPaint);
             }
 
-            foreach (var arrow in _arrows)
+            foreach (var arrow in Arrows)
             {
                 _canvas.DrawLine(arrow.StartPoint, arrow.EndPoint, arrow.Paint);
             }
@@ -340,7 +355,7 @@ namespace Control.VisualPlanner.Platforms.Common.Control
             if (_arrowStartPoint == default || _arrowCurrentPoint == default)
                 return;
             
-            _arrows.Add(new Arrow(_arrowStartPoint, _arrowCurrentPoint, DrawPaint));
+            Arrows.Add(new Arrow(_arrowStartPoint, _arrowCurrentPoint, DrawPaint));
             _arrowStartPoint = default;
             _arrowCurrentPoint = default;
         }

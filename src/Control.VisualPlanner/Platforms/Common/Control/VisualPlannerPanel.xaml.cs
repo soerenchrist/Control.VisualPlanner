@@ -298,18 +298,21 @@ namespace Control.VisualPlanner.Platforms.Common.Control
             if (args.Type == TouchActionType.Moved)
             {
                 PlannerItem elementToMove;
+                // If an element is already selected, take this
+                // else take the one in bounds
                 var elementsInBounds = GetAllElementsInBounds(args.Location);
-                if (elementsInBounds.Count == 0)
-                    return;
-                if (elementsInBounds.Count == 1)
+                switch (elementsInBounds.Count)
                 {
-                    elementToMove = elementsInBounds.First();
+                    case 0:
+                        return;
+                    case 1:
+                        elementToMove = elementsInBounds.First();
+                        break;
+                    default:
+                        elementToMove = elementsInBounds.Contains(SelectedItem) ? SelectedItem : elementsInBounds.First();
+                        break;
                 }
-                else
-                {
-                    elementToMove = elementsInBounds.Contains(SelectedItem) ? SelectedItem : elementsInBounds.First();
-                }
-                
+
                 var point = ConvertToPixel(args.Location);
                 elementToMove.X = point.X - (elementToMove.ScaledWidth / 2);
                 elementToMove.Y = point.Y - (elementToMove.ScaledHeight / 2);

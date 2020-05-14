@@ -17,7 +17,6 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <PackageLicenseUrl>https://github.com/soerenchrist/Control.VisualPlanner/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/soerenchrist/Control.VisualPlanner</PackageProjectUrl>
     <RepositoryUrl>https://github.com/soerenchrist/Control.VisualPlanner</RepositoryUrl>
     <PackageReleaseNotes>First version</PackageReleaseNotes>
@@ -30,7 +29,6 @@
     <Owners>Sören Christ</Owners>
     <Authors>Sören Christ</Authors>
     <Copyright>Copyright 2020</Copyright>
-    <PackageRequireLicenseAcceptance>MIT</PackageRequireLicenseAcceptance>
     <SignAssembly>false</SignAssembly>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>

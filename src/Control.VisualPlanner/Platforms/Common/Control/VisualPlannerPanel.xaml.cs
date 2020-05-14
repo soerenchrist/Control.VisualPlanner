@@ -1,7 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Control.VisualPlanner.Platforms.Common.Abstractions;
 using SkiaSharp;
@@ -28,8 +30,7 @@ namespace Control.VisualPlanner.Platforms.Common.Control
             Style = SKPaintStyle.Stroke,
             StrokeWidth = 5f
         };
-
-
+        
 
         #region BackgroundSvg (Bindable string)
 
@@ -178,6 +179,22 @@ namespace Control.VisualPlanner.Platforms.Common.Control
 
         #endregion DefaultPaint (Bindable SKPaint)
 
+        #region SelectedBackgroundColor (Bindable SKColor)
+
+        public static readonly BindableProperty SelectedBackgroundColorProperty =
+            BindableProperty.Create(propertyName: nameof(SelectedBackgroundColor),
+                returnType: typeof(SKColor),
+                declaringType: typeof(VisualPlannerPanel),
+                defaultValue: SKColors.Blue);
+
+        public SKColor SelectedBackgroundColor
+        {
+            get => (SKColor) GetValue(SelectedBackgroundColorProperty);
+            set => SetValue(SelectedBackgroundColorProperty, value);
+        }
+
+        #endregion SelectedBackgroundColor (Bindable SKColor)
+        
         #region DrawPaint (Bindable SKPaint)
 
         public static readonly BindableProperty DrawPaintProperty =
@@ -193,7 +210,7 @@ namespace Control.VisualPlanner.Platforms.Common.Control
         }
 
         #endregion DrawPaint (Bindable SKPaint)
-
+        
 
         private SkiaSharp.Extended.Svg.SKSvg _background;
         private SKCanvas _canvas;
@@ -211,12 +228,15 @@ namespace Control.VisualPlanner.Platforms.Common.Control
             _canvas = _surface.Canvas;
 
             _canvas.Clear();
-            DrawBackground(e.Info.Width, e.Info.Height);
+            DrawBackground();
             if (Items == null) return;
             foreach (var plannerItem in Items)
             {
-                var paint = plannerItem.Equals(SelectedItem) ? SelectedPaint : DefaultPaint;
-                plannerItem.Draw(_canvas, paint);
+                if (plannerItem.Equals(SelectedItem))
+                {
+                    DrawSelectionBackground(plannerItem);
+                }
+                plannerItem.Draw(_canvas, DefaultPaint);
             }
 
 
@@ -224,7 +244,26 @@ namespace Control.VisualPlanner.Platforms.Common.Control
             _canvas.DrawPath(DrawingPath, DrawPaint);
         }
 
-        private void DrawBackground(int width, int height)
+        private void DrawSelectionBackground(PlannerItem item)
+        {
+            var center = new SKPoint(item.CenterX, item.CenterY);
+            var radius = ((item.ScaledWidth + item.ScaledHeight) / 2 + 50) / 2;
+            var gradientColors =
+                new[] {SelectedBackgroundColor, SKColors.Transparent};
+            var background = SKShader.CreateRadialGradient(center, radius, gradientColors, null, SKShaderTileMode.Clamp);
+            using var paint = new SKPaint
+            {
+                Shader = background
+            };
+            const float rectOffset = 50f;
+            var rect = new SKRect(item.X - rectOffset,
+                item.Y - rectOffset,
+                item.X + item.ScaledWidth + rectOffset,
+                item.Y + item.ScaledHeight + rectOffset);
+            _canvas.DrawRect(rect, paint);
+        }
+
+        private void DrawBackground()
         {
             if (_background == null) return;
             var scaleX = CanvasView.CanvasSize.Width / _background.Picture.CullRect.Width;
@@ -245,13 +284,12 @@ namespace Control.VisualPlanner.Platforms.Common.Control
 
             if (args.Type == TouchActionType.Pressed)
             {
-                var element = GetElementInBounds(args.Location);
+                var element = GetFirstElementInBounds(args.Location);
                 if (element == null)
                 {
                     return;
                 }
-
-                ;
+                
                 SetSelectedItem(element);
                 CanvasView.InvalidateSurface();
                 return;
@@ -259,11 +297,22 @@ namespace Control.VisualPlanner.Platforms.Common.Control
 
             if (args.Type == TouchActionType.Moved)
             {
-                var selectedElement = GetElementInBounds(args.Location);
-                if (selectedElement == null) return;
+                PlannerItem elementToMove;
+                var elementsInBounds = GetAllElementsInBounds(args.Location);
+                if (elementsInBounds.Count == 0)
+                    return;
+                if (elementsInBounds.Count == 1)
+                {
+                    elementToMove = elementsInBounds.First();
+                }
+                else
+                {
+                    elementToMove = elementsInBounds.Contains(SelectedItem) ? SelectedItem : elementsInBounds.First();
+                }
+                
                 var point = ConvertToPixel(args.Location);
-                selectedElement.X = point.X - (selectedElement.ScaledWidth / 2);
-                selectedElement.Y = point.Y - (selectedElement.ScaledHeight / 2);
+                elementToMove.X = point.X - (elementToMove.ScaledWidth / 2);
+                elementToMove.Y = point.Y - (elementToMove.ScaledHeight / 2);
 
                 CanvasView.InvalidateSurface();
             }
@@ -311,8 +360,28 @@ namespace Control.VisualPlanner.Platforms.Common.Control
             return new SKPoint((float)(CanvasView.CanvasSize.Width * pt.X / Width),
                 (float)(CanvasView.CanvasSize.Height * pt.Y / Height));
         }
+        
+        private IList<PlannerItem> GetAllElementsInBounds(Point location)
+        {
+            const int threshold = 50;
+            var point = ConvertToPixel(location);
+            var items = new List<PlannerItem>();
+            foreach (var element in Items)
+            {
+                var xLeft = element.X - threshold;
+                var yTop = element.Y - threshold;
+                var xRight = element.X + element.ScaledWidth + threshold;
+                var yBottom = element.Y + element.ScaledHeight + threshold;
 
-        private PlannerItem GetElementInBounds(Point location)
+                if (point.X > xLeft && point.Y > yTop
+                                    && point.X < xRight && point.Y < yBottom)
+                    items.Add(element);
+            }
+
+            return items;
+        }
+
+        private PlannerItem GetFirstElementInBounds(Point location)
         {
             const int threshold = 50;
             var point = ConvertToPixel(location);

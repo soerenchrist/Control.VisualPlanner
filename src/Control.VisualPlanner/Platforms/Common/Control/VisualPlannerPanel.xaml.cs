@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -6,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Control.VisualPlanner.Platforms.Common.Abstractions;
+using Control.VisualPlanner.Platforms.Common.Models;
 using SkiaSharp;
 using SkiaSharp.Views.Forms;
 using Xamarin.Forms;
@@ -30,7 +32,14 @@ namespace Control.VisualPlanner.Platforms.Common.Control
             Style = SKPaintStyle.Stroke,
             StrokeWidth = 5f
         };
-        
+
+        #region ArrowModeProperties
+
+        private SKPoint _arrowStartPoint;
+        private SKPoint _arrowCurrentPoint;
+        private IList<Arrow> _arrows = new List<Arrow>();
+
+        #endregion
 
         #region BackgroundSvg (Bindable string)
 
@@ -66,21 +75,21 @@ namespace Control.VisualPlanner.Platforms.Common.Control
 
         #endregion BackgroundSvg (Bindable string)
 
-        #region DrawMode (Bindable bool)
+        #region PlannerMode (Bindable bool)
 
-        public static readonly BindableProperty DrawModeProperty =
-            BindableProperty.Create(nameof(DrawMode),
-                typeof(bool),
+        public static readonly BindableProperty PlannerModeProperty =
+            BindableProperty.Create(nameof(PlannerMode),
+                typeof(PlannerMode),
                 typeof(VisualPlannerPanel),
-                false);
+                PlannerMode.Move);
 
-        public bool DrawMode
+        public PlannerMode PlannerMode
         {
-            get => (bool) GetValue(DrawModeProperty);
-            set => SetValue(DrawModeProperty, value);
+            get => (PlannerMode) GetValue(PlannerModeProperty);
+            set => SetValue(PlannerModeProperty, value);
         }
 
-        #endregion DrawMode (Bindable bool)
+        #endregion PlannerMode (Bindable bool)
 
         #region Items (Bindable IEnumerable<PlannerElement>)
 
@@ -240,8 +249,23 @@ namespace Control.VisualPlanner.Platforms.Common.Control
             }
 
 
-            if (DrawingPath == null) return;
-            _canvas.DrawPath(DrawingPath, DrawPaint);
+            if (DrawingPath != null)
+                _canvas.DrawPath(DrawingPath, DrawPaint);
+
+            DrawArrows();
+        }
+
+        private void DrawArrows()
+        {
+            if (_arrowCurrentPoint != default && _arrowStartPoint != default)
+            {
+                _canvas.DrawLine(_arrowStartPoint, _arrowCurrentPoint, DrawPaint);
+            }
+
+            foreach (var arrow in _arrows)
+            {
+                _canvas.DrawLine(arrow.StartPoint, arrow.EndPoint, arrow.Paint);
+            }
         }
 
         private void DrawSelectionBackground(PlannerItem item)
@@ -276,12 +300,53 @@ namespace Control.VisualPlanner.Platforms.Common.Control
 
         private void TouchEffect_OnTouchAction(object sender, TouchActionEventArgs args)
         {
-            if (DrawMode)
+            switch (PlannerMode)
             {
-                Draw(args.Type, ConvertToPixel(args.Location));
-                return;
+                case PlannerMode.Move:
+                    HandleMoveTouches(args);
+                    break;
+                case PlannerMode.Draw:
+                    HandleDrawTouches(args);
+                    break;
+                case PlannerMode.Arrows:
+                    HandleArrowTouches(args);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
+        }
 
+        private void HandleArrowTouches(TouchActionEventArgs args)
+        {
+            var point = ConvertToPixel(args.Location);
+            var touchType = args.Type;
+            switch (touchType)
+            {
+                case TouchActionType.Pressed:
+                    _arrowStartPoint = new SKPoint(point.X, point.Y);
+                    break;
+                case TouchActionType.Moved:
+                    _arrowCurrentPoint = new SKPoint(point.X, point.Y);
+                    break;
+                case TouchActionType.Released:
+                    FinishCurrentArrow();
+                    break;
+            }
+            CanvasView.InvalidateSurface();
+        }
+
+        private void FinishCurrentArrow()
+        {
+            if (_arrowStartPoint == default || _arrowCurrentPoint == default)
+                return;
+            
+            _arrows.Add(new Arrow(_arrowStartPoint, _arrowCurrentPoint, DrawPaint));
+            _arrowStartPoint = default;
+            _arrowCurrentPoint = default;
+        }
+
+        private void HandleMoveTouches(TouchActionEventArgs args)
+        {
             if (args.Type == TouchActionType.Pressed)
             {
                 var element = GetFirstElementInBounds(args.Location);
@@ -321,16 +386,18 @@ namespace Control.VisualPlanner.Platforms.Common.Control
             }
         }
 
-        private void Draw(TouchActionType argsType, SKPoint point)
+        private void HandleDrawTouches(TouchActionEventArgs args)
         {
+            var point = ConvertToPixel(args.Location);
+            var touchType = args.Type;
             if (DrawingPath == null) return;
-            if (argsType == TouchActionType.Pressed)
+            if (touchType == TouchActionType.Pressed)
             {
                 DrawingPath.MoveTo(point);
                 return;
             }
 
-            if (argsType == TouchActionType.Moved)
+            if (touchType == TouchActionType.Moved)
             {
                 DrawingPath.LineTo(point);
             }

@@ -7,16 +7,21 @@
              xmlns:viewModels="clr-namespace:VisualPlanner.Sample.ViewModels;assembly=VisualPlanner.Sample"
              mc:Ignorable="d"
              x:Class="VisualPlanner.Sample.Views.ItemsPage"
-             Title="{Binding Title}"
              x:Name="BrowseItemsPage">
     <ContentPage.BindingContext>
         <viewModels:ItemsViewModel />
     </ContentPage.BindingContext>
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Order="Primary"
+        <ToolbarItem Order="Secondary"
+                     Text="Arrow"
+                     Clicked="ArrowOnTapped"></ToolbarItem>
+        <ToolbarItem Order="Secondary"
                      Text="Draw"
                      Clicked="DrawOnTapped"/>
+        <ToolbarItem Order="Secondary"
+                     Text="Move"
+                     Clicked="MoveOnTapped"/>
         <ToolbarItem Order="Primary"
                      Text="Add"
                      Command="{Binding AddCommand}"/>

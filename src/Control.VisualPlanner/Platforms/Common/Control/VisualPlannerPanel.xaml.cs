@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Control.VisualPlanner.Platforms.Common.Abstractions;
+using Control.VisualPlanner.Platforms.Common.Helper;
 using Control.VisualPlanner.Platforms.Common.Models;
 using SkiaSharp;
 using SkiaSharp.Views.Forms;
@@ -37,6 +38,12 @@ namespace Control.VisualPlanner.Platforms.Common.Control
 
         private SKPoint _arrowStartPoint;
         private SKPoint _arrowCurrentPoint;
+
+        #endregion
+
+        #region DrawingProperties
+
+        private SKPath _currentDrawPath;
 
         #endregion
 
@@ -139,15 +146,15 @@ namespace Control.VisualPlanner.Platforms.Common.Control
         #region DrawingPath (Bindable SKPath)
 
         public static readonly BindableProperty DrawingPathProperty =
-            BindableProperty.Create(propertyName: nameof(DrawingPath),
-                returnType: typeof(SKPath),
+            BindableProperty.Create(propertyName: nameof(DrawingPaths),
+                returnType: typeof(IList<DrawingPath>),
                 declaringType: typeof(VisualPlannerPanel),
-                defaultValue: new SKPath(),
+                defaultValue: new List<DrawingPath>(),
                 propertyChanged: GenericPropertyChanged);
 
-        public SKPath DrawingPath
+        public IList<DrawingPath> DrawingPaths
         {
-            get => (SKPath) GetValue(DrawingPathProperty);
+            get => (IList<DrawingPath>) GetValue(DrawingPathProperty);
             set => SetValue(DrawingPathProperty, value);
         }
 
@@ -263,11 +270,21 @@ namespace Control.VisualPlanner.Platforms.Common.Control
                 plannerItem.Draw(_canvas, DefaultPaint);
             }
 
-
-            if (DrawingPath != null)
-                _canvas.DrawPath(DrawingPath, DrawPaint);
-
+            DrawDrawingPaths();
             DrawArrows();
+        }
+
+        private void DrawDrawingPaths()
+        {
+            if (_currentDrawPath != default)
+                _canvas.DrawPath(_currentDrawPath, DrawPaint);
+            if (DrawingPaths == null)
+                return;
+
+            foreach (var drawingPath in DrawingPaths)
+            {
+                _canvas.DrawPath(drawingPath.Path, drawingPath.Paint);
+            }
         }
 
         private void DrawArrows()
@@ -355,7 +372,7 @@ namespace Control.VisualPlanner.Platforms.Common.Control
             if (_arrowStartPoint == default || _arrowCurrentPoint == default)
                 return;
             
-            Arrows.Add(new Arrow(_arrowStartPoint, _arrowCurrentPoint, DrawPaint));
+            Arrows.Add(new Arrow(_arrowStartPoint, _arrowCurrentPoint, DrawPaint.Copy()));
             _arrowStartPoint = default;
             _arrowCurrentPoint = default;
         }
@@ -405,17 +422,25 @@ namespace Control.VisualPlanner.Platforms.Common.Control
         {
             var point = ConvertToPixel(args.Location);
             var touchType = args.Type;
-            if (DrawingPath == null) return;
-            if (touchType == TouchActionType.Pressed)
+            if (DrawingPaths == null) return;
+            switch (touchType)
             {
-                DrawingPath.MoveTo(point);
-                return;
+                case TouchActionType.Pressed:
+                    _currentDrawPath = new SKPath();
+                    _currentDrawPath.MoveTo(point);
+                    return;
+                case TouchActionType.Moved:
+                    _currentDrawPath.LineTo(point);
+                    break;
+                case TouchActionType.Released:
+                    DrawingPaths?.Add(new DrawingPath
+                    {
+                        Paint = DrawPaint.Copy(),
+                        Path = _currentDrawPath
+                    });
+                    break;
             }
 
-            if (touchType == TouchActionType.Moved)
-            {
-                DrawingPath.LineTo(point);
-            }
 
             CanvasView.InvalidateSurface();
         }

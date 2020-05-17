@@ -22,6 +22,10 @@
         <ToolbarItem Order="Secondary"
                      Text="Move"
                      Clicked="MoveOnTapped"/>
+        
+        <ToolbarItem Order="Secondary"
+                     Text="Color"
+                     Clicked="ColorOnTapped"/>
         <ToolbarItem Order="Primary"
                      Text="Add"
                      Command="{Binding AddCommand}"/>
